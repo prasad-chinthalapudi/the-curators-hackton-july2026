@@ -1,0 +1,47 @@
+[
+  {
+    "knowledge_id": "k_001",
+    "question": "Who led delivery?",
+    "answer": "Placeholder Lead",
+    "related_document_ids": [
+      "doc_001"
+    ],
+    "contributor": "Tester"
+  },
+  {
+    "knowledge_id": "k_002",
+    "question": "Who led delivery?",
+    "answer": "Placeholder Lead",
+    "related_document_ids": [
+      "doc_001"
+    ],
+    "contributor": "Tester"
+  },
+  {
+    "knowledge_id": "k_003",
+    "question": "Who led delivery?",
+    "answer": "Placeholder Lead",
+    "related_document_ids": [
+      "doc_001"
+    ],
+    "contributor": "Tester"
+  },
+  {
+    "knowledge_id": "k_004",
+    "question": "Who led delivery?",
+    "answer": "Placeholder Lead",
+    "related_document_ids": [
+      "doc_001"
+    ],
+    "contributor": "Tester"
+  },
+  {
+    "knowledge_id": "k_005",
+    "question": "Who led delivery?",
+    "answer": "Placeholder Lead",
+    "related_document_ids": [
+      "doc_001"
+    ],
+    "contributor": "Tester"
+  }
+]

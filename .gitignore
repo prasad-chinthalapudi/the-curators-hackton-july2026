@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+data/uploads/
+data/images/
+data/lancedb/
+data/graph.json
+data/ingest_manifest.json
+.DS_Store

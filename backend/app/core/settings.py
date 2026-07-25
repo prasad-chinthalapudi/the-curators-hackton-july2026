@@ -15,7 +15,7 @@ def _path(name: str, default: str) -> Path:
 
 @dataclass(frozen=True)
 class Settings:
-    data_mode: str = os.getenv("PIH_DATA_MODE", "mock").lower()
+    data_mode: str = os.getenv("PIH_DATA_MODE", "chroma").lower()
     source_index: Path = _path("PIH_SOURCE_INDEX", "app/extracted_data/data_extracted.txt")
     pilot_manifest: Path = _path("PIH_PILOT_MANIFEST", "app/extracted_data/pilot_manifest.json")
     chroma_directory: Path = _path("PIH_CHROMA_DIRECTORY", "app/data/chroma")
@@ -23,6 +23,9 @@ class Settings:
     dataset: str = os.getenv("PIH_DATASET", "pih_initial_14")
     embedding_model: str = os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
     chat_model: str = os.getenv("OPENAI_CHAT_MODEL", "gpt-4o-mini")
+    retrieval_top_k: int = int(os.getenv("PIH_RETRIEVAL_TOP_K", "8"))
+    min_relevance_score: float = float(os.getenv("PIH_MIN_RELEVANCE_SCORE", "0.40"))
+    max_history_messages: int = int(os.getenv("PIH_MAX_HISTORY_MESSAGES", "8"))
 
 
 settings = Settings()

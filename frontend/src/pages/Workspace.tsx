@@ -3,16 +3,10 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { createColumnHelper, flexRender, getCoreRowModel, getSortedRowModel, useReactTable, type RowSelectionState } from "@tanstack/react-table";
 import { CheckCircle2, FileText, Folder, Home, Lightbulb, MessageSquarePlus, PanelsTopLeft, Search, Sparkles, X, XCircle, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { checkReadiness, downloadOnePagerPdf, generateOnePager, saveKnowledge, searchDocuments } from "../api/client";
-import type { Coverage, Document, Filters, Readiness, Status } from "../types";
+import { askAssistant, checkReadiness, downloadOnePagerPdf, generateOnePager, saveKnowledge, searchDocuments } from "../api/client";
+import type { ChatMessage, Coverage, Document, Filters, Readiness, SearchResponse, Status } from "../types";
 
 const suggestions = ["Healthcare Data Warehouse", "Snowflake Migration", "Azure Data Engineering", "Customer 360", "GenAI Projects"];
-const filterGroups = [
-  ["Document Type", "file_types", ["pptx", "pdf", "docx"]],
-  ["Technology", "technologies", ["Azure", "Snowflake", "Databricks", "ADF", "AWS", "Power BI", "Python", "Machine Learning", "GenAI"]],
-  ["Industry", "industries", ["Healthcare", "Retail", "Travel", "Insurance", "Banking", "Hospitality"]],
-] as const;
-
 export default function Workspace() {
   const navigate = useNavigate();
   const [query, setQuery] = useState("Need Healthcare projects using Snowflake and Azure Databricks");
@@ -26,12 +20,38 @@ export default function Workspace() {
   const [knowledge, setKnowledge] = useState(false);
   const [chat, setChat] = useState(false);
   const [toast, setToast] = useState("");
+  const [inlineAnswer, setInlineAnswer] = useState("");
+  const [inlineConversationId, setInlineConversationId] = useState<string | null>(null);
+  const [inlineHistory, setInlineHistory] = useState<ChatMessage[]>([]);
+  const [inlineCitations, setInlineCitations] = useState<string[]>([]);
+  const [showLowConfidence, setShowLowConfidence] = useState(false);
 
   const search = useQuery({
-    queryKey: ["search", submitted, filters, page],
-    queryFn: () => searchDocuments({ query: submitted, filters, page, page_size: 10, sort_by: "relevance" }),
+    queryKey: ["search", submitted, filters, page, showLowConfidence],
+    queryFn: () => searchDocuments({ query: submitted, filters, page, page_size: 10, sort_by: "relevance", include_low_confidence: showLowConfidence }),
   });
   const readiness = useMutation({ mutationFn: checkReadiness, onSuccess: setReady });
+  const inlineAssistant = useMutation({
+    mutationFn: (question: string) => askAssistant({
+      message: question,
+      document_ids: [],
+      filters,
+      conversation_id: inlineConversationId,
+      history: inlineHistory,
+    }),
+    onSuccess: (response, question) => {
+      setInlineAnswer(response.answer);
+      setInlineConversationId(response.conversation_id);
+      setInlineHistory(current => [
+        ...current,
+        { role: "user", content: question },
+        { role: "assistant", content: response.answer },
+      ]);
+      setInlineCitations(response.citations.map(
+        citation => `${citation.file_name} · ${citation.location_type} ${citation.location_number}`,
+      ));
+    },
+  });
   const generate = useMutation({
     mutationFn: async (documentIds: string[]) => {
       const result = await generateOnePager(documentIds);
@@ -42,6 +62,14 @@ export default function Workspace() {
   });
   const docs = useMemo(() => search.data?.documents.filter(doc => doc.file_name.toLowerCase().includes(within.toLowerCase())) ?? [], [search.data, within]);
   const ids = Object.keys(selected).filter(key => selected[key]);
+  const askInline = (question: string) => {
+    const value = question.trim();
+    if (!value || inlineAssistant.isPending) return;
+    setQuery(value);
+    setPage(1);
+    setSubmitted(value);
+    inlineAssistant.mutate(value);
+  };
 
   const toggle = (key: "file_types" | "technologies" | "industries", value: string) => {
     setPage(1);
@@ -59,7 +87,12 @@ export default function Workspace() {
       column.accessor("file_name", { header: "Document Name", cell: info => <button className="font-semibold text-indigo-700 text-left" onClick={() => setPreview(info.row.original)}>{info.getValue()}</button> }),
       column.accessor("file_type", { header: "Type", cell: info => <span className="badge uppercase">{info.getValue()}</span> }),
       column.accessor("tags", { header: "Tags / Extracted Info", cell: info => <div className="flex flex-wrap gap-1">{info.getValue().map(tag => <span className="badge" key={tag}>{tag}</span>)}</div> }),
-      column.accessor("match_score", { header: "Match Score", cell: info => <div className="w-20"><div className="text-xs">{Math.round(info.getValue() * 100)}%</div><div className="h-1.5 bg-slate-200 rounded"><div className="h-1.5 bg-emerald-500 rounded" style={{ width: `${info.getValue() * 100}%` }} /></div></div> }),
+      column.accessor("match_score", { header: "Match Score", cell: info => {
+        const score = info.getValue();
+        const label = score >= 0.7 ? "Strong match" : score >= 0.5 ? "Relevant" : "Low confidence";
+        const color = score >= 0.7 ? "bg-emerald-500" : score >= 0.5 ? "bg-blue-500" : "bg-amber-500";
+        return <div className="w-24"><div className="text-xs font-medium">{Math.round(score * 100)}%</div><div className="h-1.5 bg-slate-200 rounded mt-1"><div className={`h-1.5 rounded ${color}`} style={{ width: `${score * 100}%` }} /></div><div className="text-[10px] text-slate-500 mt-1">{label}</div></div>;
+      } }),
       column.accessor("summary", { header: "AI Summary", cell: info => <span className="text-sm">{info.getValue()}</span> }),
       column.accessor("added_on", { header: "Added On" }),
     ];
@@ -70,14 +103,29 @@ export default function Workspace() {
     <Header />
     <div className="flex items-start">
       <IconNav />
-      <Filters filters={filters} toggle={toggle} clear={() => setFilters({ file_types: [], technologies: [], industries: [] })} setFilters={setFilters} />
+      <Filters facets={search.data?.facets} loading={search.isLoading} filters={filters} toggle={toggle} clear={() => setFilters({ file_types: [], technologies: [], industries: [] })} setFilters={setFilters} />
       <main className="flex-1 min-w-0 p-5">
         <h2 className="text-xl font-bold">What are you looking for?</h2>
-        <form className="flex mt-4" onSubmit={event => { event.preventDefault(); setPage(1); setSubmitted(query); }}>
+        <form className="flex mt-4" onSubmit={event => { event.preventDefault(); askInline(query); }}>
           <input value={query} onChange={event => setQuery(event.target.value)} className="flex-1 border rounded-l-lg p-3" />
-          <button className="primary px-7 rounded-r-lg flex items-center gap-2"><Search size={18} /> Search</button>
+          <button disabled={inlineAssistant.isPending} className="primary px-7 rounded-r-lg flex items-center gap-2 disabled:opacity-60"><Search size={18} /> {inlineAssistant.isPending ? "Answering…" : "Search"}</button>
         </form>
-        <div className="flex gap-2 mt-3 flex-wrap"><span className="text-xs text-slate-500 py-1">Example searches:</span>{suggestions.map(item => <button key={item} className="badge" onClick={() => { setQuery(item); setSubmitted(item); }}>{item}</button>)}</div>
+        <section className="card mt-3 p-4">
+          <div className="flex items-center gap-2 mb-2"><Sparkles size={17} className="text-indigo-600" /><label className="font-semibold text-sm" htmlFor="search-answer">AI Answer</label></div>
+          <textarea
+            id="search-answer"
+            readOnly
+            rows={4}
+            className="w-full resize-y rounded-lg border bg-slate-50 p-3 text-sm leading-6 text-slate-700"
+            value={inlineAssistant.isPending
+              ? "Retrieving relevant evidence and generating a grounded answer…"
+              : inlineAssistant.isError
+                ? "The AI answer could not be generated. Confirm the backend, Chroma collection, and OpenAI configuration."
+                : inlineAnswer || search.data?.understanding.summary || "Enter a question above to receive a summary or ask a follow-up."}
+          />
+          {inlineCitations.length > 0 && <p className="mt-2 text-xs text-slate-500"><b>Sources:</b> {inlineCitations.join("; ")}</p>}
+        </section>
+        <div className="flex gap-2 mt-3 flex-wrap"><span className="text-xs text-slate-500 py-1">Example searches:</span>{suggestions.map(item => <button key={item} className="badge" onClick={() => askInline(item)}>{item}</button>)}</div>
 
         {search.isLoading && <div className="animate-pulse mt-6 h-44 card" />}
         {search.isError && <div className="card p-6 mt-6 text-red-600">Unable to load results. Confirm the FastAPI server is running.</div>}
@@ -92,7 +140,7 @@ export default function Workspace() {
           </section>
 
           <section className="card mt-5 overflow-hidden">
-            <div className="p-4 flex items-center gap-3"><div><h3 className="font-bold">Matching Documents <span className="text-slate-400">({search.data.total_documents})</span></h3><p className="text-xs text-slate-500">Select documents and generate a one pager or chat with AI</p></div><div className="ml-auto relative"><Search className="absolute left-3 top-2.5 text-slate-400" size={16} /><input className="border rounded p-2 pl-9" placeholder="Search in results" value={within} onChange={event => setWithin(event.target.value)} /></div><button className="btn border">Columns</button><button className="btn border">Sort by: Relevance</button></div>
+            <div className="p-4 flex items-center gap-3"><div><h3 className="font-bold">Matching Documents <span className="text-slate-400">({search.data.total_documents})</span></h3><p className="text-xs text-slate-500">{showLowConfidence ? "Showing the top 10 results, including lower-confidence matches." : `Showing matches at or above ${Math.round(search.data.minimum_match_score * 100)}%.`}</p></div><div className="ml-auto relative"><Search className="absolute left-3 top-2.5 text-slate-400" size={16} /><input className="border rounded p-2 pl-9" placeholder="Search in results" value={within} onChange={event => setWithin(event.target.value)} /></div>{(search.data.hidden_low_confidence_count > 0 || showLowConfidence) && <button className="btn border whitespace-nowrap" onClick={() => { setPage(1); setShowLowConfidence(value => !value); }}>{showLowConfidence ? "Hide low confidence" : `Show lower confidence (${search.data.hidden_low_confidence_count})`}</button>}<button className="btn border">Columns</button><button className="btn border">Sort by: Relevance</button></div>
             {docs.length === 0 ? <div className="p-10 text-center">No matching documents. Try a broader search.</div> : <div className="overflow-x-auto"><table className="w-full text-left"><thead className="bg-slate-100">{table.getHeaderGroups().map(group => <tr key={group.id}>{group.headers.map(header => <th className="p-3 text-xs whitespace-nowrap" key={header.id}>{flexRender(header.column.columnDef.header, header.getContext())}</th>)}</tr>)}</thead><tbody>{table.getRowModel().rows.map(row => <tr className="border-t" key={row.id}>{row.getVisibleCells().map(cell => <td className="p-3" key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>)}</tr>)}</tbody></table></div>}
             <div className="p-3 flex justify-end gap-3 text-sm"><button disabled={page === 1} onClick={() => setPage(value => value - 1)}>Previous</button><span>Page {page} of {search.data.total_pages}</span><button disabled={page >= search.data.total_pages} onClick={() => setPage(value => value + 1)}>Next</button></div>
             <div className="border-t bg-white p-4 flex gap-2 items-center">
@@ -104,35 +152,91 @@ export default function Workspace() {
           </section>
         </>}
       </main>
-      <Assistant coverage={docs[0]?.coverage} technologies={search.data?.understanding.common_technologies ?? []} total={search.data?.total_documents ?? 0} summary={search.data?.understanding.summary ?? ""} onKnowledge={() => setKnowledge(true)} onChat={() => setChat(true)} />
+      <Assistant coverage={docs[0]?.coverage} technologies={search.data?.understanding.common_technologies ?? []} total={search.data?.total_documents ?? 0} summary={search.data?.understanding.summary ?? ""} onKnowledge={() => setKnowledge(true)} onChat={() => setChat(true)} onFollowUp={askInline} />
     </div>
 
     {preview && <div className="fixed inset-0 bg-black/30 flex justify-end z-30" onClick={() => setPreview(null)}><aside className="w-[480px] bg-white h-full p-7" onClick={event => event.stopPropagation()}><button className="float-right" onClick={() => setPreview(null)}><X /></button><span className="badge uppercase">{preview.file_type}</span><h2 className="text-2xl font-bold mt-4">{preview.file_name}</h2><p className="mt-4">{preview.summary}</p><h3 className="font-bold mt-6">Technologies</h3><div className="flex gap-2 mt-2">{preview.technologies.map(item => <span className="badge" key={item}>{item}</span>)}</div><p className="mt-6">{preview.industry} · {preview.year}</p></aside></div>}
     {ready && <Modal title="One-Pager Readiness" close={() => setReady(null)}><p>{ready.selected_document_count} documents selected · <b>{ready.status.replaceAll("_", " ")}</b></p><p className="text-sm text-slate-500 mt-2">Generate creates and downloads a PDF, then opens the one-pager preview.</p><CoverageView coverage={ready.coverage} />{ready.gaps.map(gap => <div key={gap.field} className="mt-2 text-sm">{gap.message}</div>)}{generate.isError && <p className="text-sm text-red-600 mt-4">PDF generation failed. Confirm the API is running and try again.</p>}<div className="flex justify-end gap-2 mt-6"><button className="btn" onClick={() => setReady(null)}>Cancel</button><button disabled={generate.isPending} className="btn primary disabled:opacity-50" onClick={() => generate.mutate(ids)}>{generate.isPending ? "Generating PDF…" : "Generate PDF"}</button></div></Modal>}
     {knowledge && <KnowledgeModal ids={ids} close={() => setKnowledge(false)} success={() => { setKnowledge(false); setToast("Knowledge saved"); }} />}
-    {chat && <ChatModal count={ids.length || search.data?.total_documents || 0} close={() => setChat(false)} />}
+    {chat && <ChatModal count={ids.length || search.data?.total_documents || 0} documentIds={ids} filters={filters} close={() => setChat(false)} />}
     {toast && <div className="fixed bottom-5 right-5 bg-slate-900 text-white p-4 rounded-lg z-50">{toast}</div>}
   </div>;
 }
 
 function Header() { return <header className="h-16 bg-white border-b flex items-center px-4 gap-4"><div className="bg-blue-800 text-white rounded-lg p-2 font-black">PIH</div><div><h1 className="font-bold">Project Intelligence Hub</h1><p className="text-xs text-slate-500">AI-Powered Project Knowledge Assistant</p></div><nav className="ml-auto flex items-center gap-6 text-sm"><span>My Workspaces</span><span>History</span><span>Help</span><span className="rounded-full bg-blue-700 text-white p-2">SK</span></nav></header>; }
 function IconNav() { return <aside className="w-16 min-h-[calc(100vh-4rem)] sticky top-0 bg-white border-r flex flex-col items-center gap-9 pt-7">{[Home, Folder, FileText, PanelsTopLeft, Lightbulb].map((Icon, index) => <Icon key={index} className={index === 0 ? "text-blue-600" : "text-slate-400"} size={21} />)}</aside>; }
-function Filters({ filters, toggle, clear, setFilters }: { filters: Filters; toggle: (key: "file_types" | "technologies" | "industries", value: string) => void; clear: () => void; setFilters: React.Dispatch<React.SetStateAction<Filters>> }) {
-  return <aside className="w-60 shrink-0 p-5 border-r bg-white min-h-[calc(100vh-4rem)]"><h2 className="font-bold text-lg border-b pb-4">Filters</h2>{filterGroups.map(([title, key, items]) => <div className="py-4 border-b" key={title}><h3 className="font-semibold text-sm mb-2">{title}</h3>{items.map(item => <label className="block text-sm py-1.5" key={item}><input className="mr-2 accent-blue-600" type="checkbox" checked={filters[key].includes(item)} onChange={() => toggle(key, item)} />{item}</label>)}</div>)}<div className="py-4"><h3 className="font-semibold text-sm">Year</h3><div className="flex gap-2 mt-2"><input className="w-24 border rounded p-2" placeholder="From" type="number" onChange={event => setFilters(value => ({ ...value, year_from: event.target.value ? Number(event.target.value) : undefined }))} /><input className="w-24 border rounded p-2" placeholder="To" type="number" onChange={event => setFilters(value => ({ ...value, year_to: event.target.value ? Number(event.target.value) : undefined }))} /></div></div><button className="btn border w-full" onClick={clear}>Clear All Filters</button></aside>;
+function Filters({ facets, loading, filters, toggle, clear, setFilters }: { facets?: SearchResponse["facets"]; loading: boolean; filters: Filters; toggle: (key: "file_types" | "technologies" | "industries", value: string) => void; clear: () => void; setFilters: React.Dispatch<React.SetStateAction<Filters>> }) {
+  const groups: { title: string; key: "file_types" | "technologies" | "industries"; items: string[] }[] = [
+    { title: "Document Type", key: "file_types", items: facets?.file_types ?? [] },
+    { title: "Technology", key: "technologies", items: facets?.technologies ?? [] },
+    { title: "Industry", key: "industries", items: facets?.industries ?? [] },
+  ];
+  const years = facets?.years ?? [];
+  return <aside className="w-60 shrink-0 p-5 border-r bg-white min-h-[calc(100vh-4rem)]">
+    <div className="flex items-center border-b pb-4"><h2 className="font-bold text-lg">Filters</h2><span className="ml-auto text-[10px] text-slate-400">INDEX METADATA</span></div>
+    {loading && !facets && <div className="py-5 text-sm text-slate-500">Loading indexed metadata…</div>}
+    {groups.map(group => <div className="py-4 border-b" key={group.title}>
+      <h3 className="font-semibold text-sm mb-2">{group.title}</h3>
+      {group.items.length === 0 ? <p className="text-xs text-slate-400">No metadata values</p> : group.items.map(item => <label className="block text-sm py-1.5" key={item}><input className="mr-2 accent-blue-600" type="checkbox" checked={filters[group.key].includes(item)} onChange={() => toggle(group.key, item)} />{item}</label>)}
+    </div>)}
+    <div className="py-4">
+      <h3 className="font-semibold text-sm">Year</h3>
+      {years.length === 0 ? <p className="text-xs text-slate-400 mt-2">No year metadata</p> : <div className="flex gap-2 mt-2">
+        <select aria-label="Year from" className="w-24 border rounded p-2 text-sm" value={filters.year_from ?? ""} onChange={event => setFilters(value => ({ ...value, year_from: event.target.value ? Number(event.target.value) : undefined }))}><option value="">From</option>{[...years].reverse().map(year => <option value={year} key={year}>{year}</option>)}</select>
+        <select aria-label="Year to" className="w-24 border rounded p-2 text-sm" value={filters.year_to ?? ""} onChange={event => setFilters(value => ({ ...value, year_to: event.target.value ? Number(event.target.value) : undefined }))}><option value="">To</option>{years.map(year => <option value={year} key={year}>{year}</option>)}</select>
+      </div>}
+    </div>
+    <button className="btn border w-full" onClick={clear}>Clear All Filters</button>
+  </aside>;
 }
-function Assistant({ coverage, technologies, total, summary, onKnowledge, onChat }: { coverage?: Coverage; technologies: string[]; total: number; summary: string; onKnowledge: () => void; onChat: () => void }) {
+function Assistant({ coverage, technologies, total, summary, onKnowledge, onChat, onFollowUp }: { coverage?: Coverage; technologies: string[]; total: number; summary: string; onKnowledge: () => void; onChat: () => void; onFollowUp: (question: string) => void }) {
   return <aside className="w-72 shrink-0 border-l bg-white p-4 sticky top-0 h-[calc(100vh-4rem)] overflow-y-auto">
     <div className="flex items-center"><h2 className="font-bold flex items-center gap-2"><Sparkles size={18} className="text-blue-600" /> AI Assistant</h2><button className="ml-auto btn border text-xs text-blue-700 flex gap-1" onClick={onChat}><MessageSquarePlus size={14} /> New Chat</button></div>
     <section className="card p-4 mt-4 text-sm"><p>I found <b>{total}</b> relevant documents for your query.</p><p className="mt-3">{summary || "Run a search to see project insights."}</p><p className="mt-3">You can:</p><ul className="list-disc ml-5 mt-2 space-y-1"><li>Generate a one pager</li><li>Chat with these documents</li><li>Compare documents</li><li>View cluster overview</li></ul></section>
     <section className="card p-4 mt-4"><h3 className="font-semibold text-sm">Top Technologies</h3>{technologies.slice(0, 4).map((item, index) => <div key={item} className="mt-3 text-xs"><div className="flex justify-between"><span>{item}</span><span>{87 - index * 11}%</span></div><div className="h-1.5 bg-slate-200 rounded mt-1"><div className="h-1.5 bg-blue-600 rounded" style={{ width: `${87 - index * 11}%` }} /></div></div>)}</section>
     <section className="card p-4 mt-4"><div className="flex justify-between"><h3 className="font-semibold text-sm">Knowledge Coverage</h3><button className="text-xs text-blue-600" onClick={onKnowledge}>Add</button></div>{coverage ? <CoverageView coverage={coverage} compact /> : <p className="text-xs text-slate-500 mt-3">Coverage appears with results.</p>}</section>
-    <section className="card p-4 mt-4"><h3 className="text-xs text-slate-500">Ask a follow-up</h3>{["Show me similar projects", "What are the key outcomes?", "Which clients are mentioned?"].map(item => <button className="block btn border text-xs text-blue-700 mt-2 w-full text-left" onClick={onChat} key={item}>{item}</button>)}</section>
+    <section className="card p-4 mt-4"><h3 className="text-xs text-slate-500">Ask a follow-up</h3>{["Show me similar projects", "What are the key outcomes?", "Which clients are mentioned?"].map(item => <button className="block btn border text-xs text-blue-700 mt-2 w-full text-left" onClick={() => onFollowUp(item)} key={item}>{item}</button>)}</section>
   </aside>;
 }
 function StatusIcon({ status }: { status: Status }) { return status === "available" ? <CheckCircle2 size={15} className="text-green-600" /> : status === "partial" ? <AlertTriangle size={15} className="text-amber-500" /> : <XCircle size={15} className="text-red-500" />; }
 function CoverageView({ coverage, compact = false }: { coverage: Coverage; compact?: boolean }) { return <div className={compact ? "mt-3 space-y-2" : "grid grid-cols-2 gap-2 mt-4"}>{Object.entries(coverage).map(([key, value]) => <div className="flex justify-between items-center text-xs bg-slate-50 p-2 rounded capitalize" key={key}><span>{key.replaceAll("_", " ")}</span><span className="flex items-center gap-1"><StatusIcon status={value} />{value !== "available" && value}</span></div>)}</div>; }
 function Modal({ title, close, children }: { title: string; close: () => void; children: ReactNode }) { return <div className="fixed inset-0 bg-black/40 grid place-items-center z-40"><div className="card p-6 w-[620px] max-h-[90vh] overflow-auto"><button className="float-right" onClick={close}><X /></button><h2 className="text-xl font-bold">{title}</h2>{children}</div></div>; }
-function ChatModal({ count, close }: { count: number; close: () => void }) { const [message, setMessage] = useState(""); return <Modal title="AI Assistant · New Chat" close={close}><div className="bg-slate-50 rounded-lg p-4 mt-4 text-sm">Ask questions across {count} relevant document{count === 1 ? "" : "s"}. This prototype uses placeholder responses.</div><div className="mt-4 min-h-32 border rounded-lg p-4 text-sm text-slate-500">Try: “What are the common business outcomes?”</div><div className="flex mt-4"><input className="flex-1 border rounded-l-lg p-3" placeholder="Ask a follow-up…" value={message} onChange={event => setMessage(event.target.value)} /><button className="primary px-5 rounded-r-lg" onClick={() => setMessage("")}>Send</button></div></Modal>; }
+function ChatModal({ count, documentIds, filters, close }: { count: number; documentIds: string[]; filters: Filters; close: () => void }) {
+  const [message, setMessage] = useState("");
+  const [history, setHistory] = useState<ChatMessage[]>([]);
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [citations, setCitations] = useState<{citation_id:string;file_name:string;location_type:string;location_number:number;excerpt:string}[]>([]);
+  const chatMutation = useMutation({
+    mutationFn: (question: string) => askAssistant({
+      message: question,
+      document_ids: documentIds,
+      filters,
+      conversation_id: conversationId,
+      history,
+    }),
+    onSuccess: (response, question) => {
+      setConversationId(response.conversation_id);
+      setHistory(current => [...current, { role: "user", content: question }, { role: "assistant", content: response.answer }]);
+      setCitations(response.citations);
+      setMessage("");
+    },
+  });
+  const send = () => {
+    const question = message.trim();
+    if (question && !chatMutation.isPending) chatMutation.mutate(question);
+  };
+  return <Modal title="AI Assistant · New Chat" close={close}>
+    <div className="bg-slate-50 rounded-lg p-4 mt-4 text-sm">Ask grounded questions across {documentIds.length ? `${documentIds.length} selected` : count} indexed document{count === 1 ? "" : "s"}.</div>
+    <div className="mt-4 min-h-48 max-h-80 overflow-y-auto border rounded-lg p-4 text-sm space-y-4">
+      {history.length === 0 && <p className="text-slate-500">Try: “What are the common business outcomes?”</p>}
+      {history.map((item, index) => <div key={`${item.role}-${index}`} className={item.role === "user" ? "ml-12 bg-blue-50 p-3 rounded-lg" : "mr-12 bg-slate-50 p-3 rounded-lg"}><b className="capitalize">{item.role}</b><p className="mt-1 whitespace-pre-wrap">{item.content}</p></div>)}
+      {chatMutation.isPending && <p className="text-slate-500">Retrieving evidence and generating a grounded answer…</p>}
+      {chatMutation.isError && <p className="text-red-600">The assistant is unavailable. Confirm Chroma mode, the OpenAI key, and the backend logs.</p>}
+    </div>
+    {citations.length > 0 && <div className="mt-4"><h3 className="font-semibold text-sm">Sources</h3>{citations.map(citation => <details className="border rounded p-2 mt-2 text-xs" key={citation.citation_id}><summary>{citation.file_name} · {citation.location_type} {citation.location_number}</summary><p className="mt-2 text-slate-600">{citation.excerpt}</p></details>)}</div>}
+    <div className="flex mt-4"><input className="flex-1 border rounded-l-lg p-3" placeholder="Ask a follow-up…" value={message} onChange={event => setMessage(event.target.value)} onKeyDown={event => { if (event.key === "Enter") send(); }} /><button disabled={!message.trim() || chatMutation.isPending} className="primary px-5 rounded-r-lg disabled:opacity-50" onClick={send}>Send</button></div>
+  </Modal>;
+}
 function KnowledgeModal({ ids, close, success }: { ids: string[]; close: () => void; success: () => void }) {
   const [question, setQuestion] = useState("Who was the delivery lead?");
   const [answer, setAnswer] = useState("");

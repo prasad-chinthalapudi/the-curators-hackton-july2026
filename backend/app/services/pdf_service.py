@@ -10,7 +10,6 @@ from reportlab.platypus import (
     HRFlowable,
     ListFlowable,
     ListItem,
-    PageBreak,
     Paragraph,
     SimpleDocTemplate,
     Spacer,
@@ -22,10 +21,10 @@ def build_one_pager_pdf(one_pager: dict) -> bytes:
     document = SimpleDocTemplate(
         buffer,
         pagesize=A4,
-        rightMargin=18 * mm,
-        leftMargin=18 * mm,
-        topMargin=16 * mm,
-        bottomMargin=16 * mm,
+        rightMargin=10 * mm,
+        leftMargin=10 * mm,
+        topMargin=9 * mm,
+        bottomMargin=9 * mm,
         title=one_pager["title"],
         author="Project Intelligence Hub",
     )
@@ -34,34 +33,34 @@ def build_one_pager_pdf(one_pager: dict) -> bytes:
         name="PIHTitle",
         parent=styles["Title"],
         fontName="Helvetica-Bold",
-        fontSize=24,
-        leading=29,
+        fontSize=17,
+        leading=20,
         textColor=colors.HexColor("#172554"),
         alignment=TA_CENTER,
-        spaceAfter=8,
+        spaceAfter=3,
     ))
     styles.add(ParagraphStyle(
         name="PIHSection",
         parent=styles["Heading2"],
         fontName="Helvetica-Bold",
-        fontSize=13,
-        leading=16,
+        fontSize=9,
+        leading=11,
         textColor=colors.HexColor("#1D4ED8"),
-        spaceBefore=10,
-        spaceAfter=5,
+        spaceBefore=4,
+        spaceAfter=2,
     ))
     styles.add(ParagraphStyle(
         name="PIHBody",
         parent=styles["BodyText"],
-        fontSize=9.5,
-        leading=14,
+        fontSize=7,
+        leading=8.5,
         textColor=colors.HexColor("#334155"),
     ))
     styles.add(ParagraphStyle(
         name="PIHMeta",
         parent=styles["BodyText"],
-        fontSize=8,
-        leading=11,
+        fontSize=6.5,
+        leading=8,
         textColor=colors.HexColor("#64748B"),
         alignment=TA_CENTER,
     ))
@@ -72,7 +71,7 @@ def build_one_pager_pdf(one_pager: dict) -> bytes:
         Paragraph(escape(one_pager["title"]), styles["PIHTitle"]),
         Paragraph(escape(one_pager["case_study_line"]), styles["PIHMeta"]),
         Paragraph(f"Generated {escape(one_pager['generated_date'])}", styles["PIHMeta"]),
-        Spacer(1, 10),
+        Spacer(1, 4),
         HRFlowable(width="100%", thickness=1, color=colors.HexColor("#BFDBFE")),
     ]
 
@@ -88,7 +87,7 @@ def build_one_pager_pdf(one_pager: dict) -> bytes:
             story.append(ListFlowable(
                 [ListItem(Paragraph(escape(value), styles["PIHBody"])) for value in values],
                 bulletType="bullet",
-                leftIndent=14,
+                leftIndent=10,
                 bulletColor=colors.HexColor("#2563EB"),
             ))
         else:
@@ -101,7 +100,6 @@ def build_one_pager_pdf(one_pager: dict) -> bytes:
     bullet_section("Quantified Outcomes", one_pager["quantified_outcomes"])
     section("Business Value", one_pager["business_value"])
     bullet_section("Known Gaps / Caveats", one_pager["known_gaps"])
-    story.append(PageBreak())
     story.append(Paragraph("Sources Used", styles["PIHSection"]))
     story.append(ListFlowable(
         [
@@ -112,7 +110,7 @@ def build_one_pager_pdf(one_pager: dict) -> bytes:
             for source in one_pager["sources_used"]
         ],
         bulletType="bullet",
-        leftIndent=14,
+        leftIndent=10,
     ))
 
     document.build(story)

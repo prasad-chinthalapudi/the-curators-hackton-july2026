@@ -29,6 +29,10 @@ def search(request: SearchRequest):
     found = [d for d in items if matches(d)]
     if request.sort_by == "name": found.sort(key=lambda d: d.file_name)
     else: found.sort(key=lambda d: d.match_score, reverse=True)
+    hidden_low_confidence_count = sum(d.match_score < 0.5 for d in found)
+    if not request.include_low_confidence:
+        found = [d for d in found if d.match_score >= 0.5]
+    found = found[:10]
     start = (request.page - 1) * request.page_size
     tech = sorted({t for d in found for t in d.technologies})
     industries = sorted({d.industry for d in found})
@@ -36,6 +40,8 @@ def search(request: SearchRequest):
     return {
         "query": request.query, "total_documents": total, "page": request.page,
         "page_size": request.page_size, "total_pages": max(1, (total + request.page_size - 1) // request.page_size),
+        "hidden_low_confidence_count": 0 if request.include_low_confidence else hidden_low_confidence_count,
+        "minimum_match_score": 0.5,
         "understanding": {"summary": "The matching documents describe relevant data, analytics, and AI implementations.",
             "documents_found": total, "related_clusters": min(3, len(industries)), "key_technologies_count": len(tech),
             "common_technologies": tech[:5], "likely_industries": industries, "confidence": 0.94 if total else 0.0},

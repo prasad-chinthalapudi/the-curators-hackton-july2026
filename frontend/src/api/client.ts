@@ -1,5 +1,5 @@
 import axios from "axios";
-import type {OnePager,Readiness,SearchRequest,SearchResponse} from "../types";
+import type {ChatRequest,ChatResponse,OnePager,Readiness,SearchRequest,SearchResponse} from "../types";
 export const apiClient=axios.create({baseURL:import.meta.env.VITE_API_BASE_URL??"http://localhost:8000/api",timeout:30000});
 export const searchDocuments=async(request:SearchRequest)=>(await apiClient.post<SearchResponse>("/search",request)).data;
 export const checkReadiness=async(ids:string[])=>(await apiClient.post<Readiness>("/one-pagers/readiness",{document_ids:ids})).data;
@@ -17,3 +17,4 @@ export const downloadOnePagerPdf=async(id:string)=>{
   URL.revokeObjectURL(url);
 };
 export const saveKnowledge=async(body:{question:string;answer:string;related_document_ids:string[];contributor:string})=>(await apiClient.post("/knowledge",body)).data;
+export const askAssistant=async(body:ChatRequest)=>(await apiClient.post<ChatResponse>("/chat",body)).data;

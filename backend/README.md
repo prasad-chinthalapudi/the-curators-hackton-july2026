@@ -53,3 +53,58 @@ To return to the offline placeholder implementation, set:
 ```text
 PIH_DATA_MODE=mock
 ```
+
+## Document extraction
+
+The reusable extraction module supports `.pptx`, `.docx`, `.pdf`, and `.xlsx`.
+It preserves slide, page, table, sheet, and row boundaries where the source
+format exposes them. Legacy binary `.doc` files are recorded as structured
+errors and should be converted to `.docx` before extraction.
+
+Run it with explicit source and output paths:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\extract_documents.py `
+  "C:\path\to\project-documents" `
+  --output "app\extracted_data\document_index.json"
+```
+
+For a deterministic development sample:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\extract_documents.py `
+  "C:\path\to\project-documents" `
+  --output "app\extracted_data\pilot_source.json" `
+  --max-files 15
+```
+
+The output is written atomically and remains compatible with the PIH ingestion
+contract. Extraction does not create embeddings or modify Chroma.
+
+## Grounded chat
+
+`POST /api/chat` retrieves fresh evidence for every message. Requests can carry
+the same metadata filters as search, selected document IDs, a conversation ID,
+and bounded user/assistant history. The response contains structured citations
+with document, slide/page/chunk location, excerpt, and relevance score.
+
+```json
+{
+  "message": "What business outcomes were achieved?",
+  "document_ids": ["source_000004"],
+  "filters": {
+    "file_types": ["pptx"],
+    "technologies": [],
+    "industries": [],
+    "year_from": null,
+    "year_to": null
+  },
+  "conversation_id": null,
+  "history": []
+}
+```
+
+Retrieval and generation failures produce `503` and `502` respectively rather
+than returning a successful placeholder answer. If no chunk meets the relevance
+threshold, the service returns a grounded no-answer response without calling the
+generation model.

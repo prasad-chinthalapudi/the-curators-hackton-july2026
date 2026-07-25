@@ -5,27 +5,11 @@ from math import ceil
 from app.core.settings import Settings, settings
 from app.ingestion.chunker import _base_metadata
 from app.ingestion.index_loader import load_pilot_documents
-from app.ingestion.chroma_indexer import create_vector_store
+from app.retrieval.retriever import retrieve_chunks
 from app.schemas.models import SearchRequest
 
-
-def _filter_expression(request: SearchRequest, config: Settings) -> dict | None:
-    clauses: list[dict] = [{"dataset": config.dataset}]
-    filters = request.filters
-    if filters.file_types:
-        clauses.append({"file_type": {"$in": filters.file_types}})
-    if filters.industries:
-        clauses.append({"industry": {"$in": filters.industries}})
-    if filters.year_from is not None:
-        clauses.append({"year": {"$gte": filters.year_from}})
-    if filters.year_to is not None:
-        clauses.append({"year": {"$lte": filters.year_to}})
-    return clauses[0] if len(clauses) == 1 else {"$and": clauses}
-
-
-def _technology_match(technology_string: str, selected: list[str]) -> bool:
-    values = set(technology_string.split("|"))
-    return not selected or bool(values.intersection(selected))
+MINIMUM_MATCH_SCORE = 0.50
+MAXIMUM_VISIBLE_DOCUMENTS = 10
 
 
 def _coverage() -> dict[str, str]:
@@ -38,16 +22,16 @@ def _coverage() -> dict[str, str]:
 
 
 def search_chroma(request: SearchRequest, config: Settings = settings) -> dict:
-    store = create_vector_store(config)
-    candidates = store.similarity_search_with_relevance_scores(
+    candidates = retrieve_chunks(
         request.query or "project case study",
-        k=max(30, request.page_size * 4),
-        filter=_filter_expression(request, config),
+        request.filters,
+        config=config,
+        limit=max(40, request.page_size * 5),
     )
     grouped: dict[str, list[tuple]] = defaultdict(list)
-    for chunk, score in candidates:
-        if _technology_match(str(chunk.metadata.get("technologies", "")), request.filters.technologies):
-            grouped[str(chunk.metadata["document_id"])].append((chunk, max(0.0, min(1.0, score))))
+    for candidate in candidates:
+        chunk = candidate.document
+        grouped[str(chunk.metadata["document_id"])].append((chunk, candidate.relevance_score))
 
     documents = []
     for document_id, matches in grouped.items():
@@ -76,6 +60,15 @@ def search_chroma(request: SearchRequest, config: Settings = settings) -> dict:
             "coverage": _coverage(),
         })
     documents.sort(key=lambda item: item["match_score"], reverse=True)
+    hidden_low_confidence_count = sum(
+        item["match_score"] < MINIMUM_MATCH_SCORE for item in documents
+    )
+    if not request.include_low_confidence:
+        documents = [
+            item for item in documents
+            if item["match_score"] >= MINIMUM_MATCH_SCORE
+        ]
+    documents = documents[:MAXIMUM_VISIBLE_DOCUMENTS]
     total = len(documents)
     start = (request.page - 1) * request.page_size
     page_documents = documents[start:start + request.page_size]
@@ -88,6 +81,10 @@ def search_chroma(request: SearchRequest, config: Settings = settings) -> dict:
         "page": request.page,
         "page_size": request.page_size,
         "total_pages": max(1, ceil(total / request.page_size)),
+        "hidden_low_confidence_count": (
+            0 if request.include_low_confidence else hidden_low_confidence_count
+        ),
+        "minimum_match_score": MINIMUM_MATCH_SCORE,
         "understanding": {
             "summary": "Results are retrieved semantically from the PIH Chroma pilot collection.",
             "documents_found": total,

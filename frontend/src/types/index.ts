@@ -1,0 +1,9 @@
+export type Status="available"|"partial"|"missing";
+export interface Coverage{executive_summary:Status;challenge:Status;solution:Status;technology_stack:Status;business_outcome:Status;metrics:Status;delivery_team:Status;lessons_learned:Status}
+export interface Document{document_id:string;file_name:string;file_type:string;match_score:number;summary:string;tags:string[];technologies:string[];industry:string;year:number;added_on:string;coverage:Coverage}
+export interface Filters{file_types:string[];technologies:string[];industries:string[];year_from?:number;year_to?:number}
+export interface SearchRequest{query:string;filters:Filters;page:number;page_size:number;sort_by:string}
+export interface SearchResponse{query:string;total_documents:number;page:number;page_size:number;total_pages:number;understanding:{summary:string;documents_found:number;related_clusters:number;key_technologies_count:number;common_technologies:string[];likely_industries:string[];confidence:number};documents:Document[];facets:{file_types:string[];technologies:string[];industries:string[];years:number[]}}
+export interface Gap{field:string;label:string;status:Status;message:string}
+export interface Readiness{status:string;selected_document_count:number;coverage:Coverage;gaps:Gap[]}
+export interface OnePager{one_pager_id:string;title:string;generated_date:string;case_study_line:string;executive_summary:string;challenge:string;solution:string;key_features:string[];quantified_outcomes:string[];business_value:string;known_gaps:string[];sources_used:{document_id:string;file_name:string}[]}

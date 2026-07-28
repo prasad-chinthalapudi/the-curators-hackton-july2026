@@ -53,6 +53,11 @@ EMBED_ARTIFACT = "data/embeddings/docling_records.pkl"
 EMBED_MAX_TOKENS = 8191                   # text-embedding-3-large context window
 EMBED_BATCH = 100                         # inputs per embeddings request
 
+# --- Frontend /api adapter (search workspace + one-pager sales brief) ---
+ONEPAGER_DIR = "data/one_pagers"          # generated brief JSON + PDF, keyed by id
+KNOWLEDGE_FILE = "data/knowledge.jsonl"   # appended Q&A from the "Add Knowledge" modal
+ONEPAGER_MAX_SOURCE_CHARS = 24000         # cap on source text sent to the brief LLM
+
 # --- API key ---
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 if not OPENAI_API_KEY:

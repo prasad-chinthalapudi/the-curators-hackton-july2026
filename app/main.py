@@ -1,4 +1,6 @@
-"""FastAPI app (spec §7) — /health, /query. CORS open for the future React app.
+"""FastAPI app — RAG contract (/health, /query, /facets) plus the /api adapter
+router (document search + one-pager sales brief) that the React frontend calls.
+CORS is open for the frontend dev server.
 
 LangChain lives inside rag.py/ingest.py; this contract stays framework-neutral.
 Every handler is wrapped so a failure returns clean JSON, never a raw 500 stack.
@@ -18,7 +20,7 @@ log = logging.getLogger("pih.main")
 
 app = FastAPI(title="PIH Clean Core", version="1.0")
 
-# CORS open — the React app will call this cross-origin later (spec §7).
+# CORS open — the React dev server (localhost:5173) calls this cross-origin.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -26,6 +28,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Frontend-facing adapter (document search + one-pager sales brief) under /api.
+from .api import router as api_router  # noqa: E402
+app.include_router(api_router)
 
 
 @app.get("/health", response_model=HealthResponse)

@@ -11,7 +11,9 @@ query a single matmul.
 from __future__ import annotations
 
 import logging
+import math
 import pickle
+import re
 
 import numpy as np
 
@@ -24,6 +26,16 @@ log = logging.getLogger("pih.retrieve_docling")
 _records: list[dict] | None = None
 _matrix: np.ndarray | None = None   # L2-normalized embeddings, shape (N, 3072)
 _client = None
+
+# --- hybrid retrieval (semantic + lexical) ---
+# Rare query terms (e.g. "61", "vialto") get high IDF weight, so a chunk that
+# literally contains them is boosted into the top-k even when its embedding is
+# weak (poorly-extracted tables). Kept small so it nudges, never overrides, the
+# semantic ranking that already works.
+LEXICAL_BOOST = 0.25
+_TOKEN_RE = re.compile(r"[a-z0-9]+")
+_lex_tok_sets: list[set] | None = None   # per-record token sets
+_idf: dict[str, float] | None = None
 
 
 def _get_client():
@@ -60,6 +72,44 @@ def _public(rec: dict) -> dict:
     return {k: v for k, v in rec.items() if k != "embedding"}
 
 
+def _tokenize(text: str) -> list[str]:
+    return _TOKEN_RE.findall(text.lower())
+
+
+def _build_lexical_index(records: list[dict]) -> None:
+    """One-pass IDF index over chunk text + headings (cached)."""
+    global _lex_tok_sets, _idf
+    if _lex_tok_sets is not None:
+        return
+    tok_sets, df = [], {}
+    for r in records:
+        toks = set(_tokenize(r.get("text", "") + " " + " ".join(r.get("headings") or [])))
+        tok_sets.append(toks)
+        for t in toks:
+            df[t] = df.get(t, 0) + 1
+    n = len(records) or 1
+    _idf = {t: math.log(1.0 + n / c) for t, c in df.items()}
+    _lex_tok_sets = tok_sets
+    log.info("built lexical index: %d records, %d terms", len(records), len(_idf))
+
+
+def _lexical_scores(query: str, records: list[dict]) -> np.ndarray:
+    """Per-record sum of IDF weights for query terms present, normalized to [0,1]."""
+    _build_lexical_index(records)
+    # Keep only meaningful terms (drop high-frequency stopwords via an IDF floor),
+    # so the boost is driven by rare, discriminating tokens.
+    qterms = {t for t in _tokenize(query) if _idf.get(t, 0.0) >= 1.5}
+    raw = np.zeros(len(records), dtype=np.float32)
+    if not qterms:
+        return raw
+    for i, toks in enumerate(_lex_tok_sets):
+        hit = qterms & toks
+        if hit:
+            raw[i] = sum(_idf.get(t, 0.0) for t in hit)
+    m = float(raw.max())
+    return raw / m if m > 0 else raw
+
+
 def _passes(rec: dict, filters: dict) -> bool:
     """Front-end filter predicate. Multi-valued filters are OR within a facet,
     AND across facets. Year uses an inclusive [from, to] range."""
@@ -86,6 +136,7 @@ def search(query: str, k: int = config.TOP_K, filters: dict | None = None) -> li
     records, M = _load()
     q = _embed_query(query)
     scores = M @ q                      # cosine, since both sides are normalized
+    scores = scores + LEXICAL_BOOST * _lexical_scores(query, records)  # hybrid boost
 
     if filters:
         mask = np.array([_passes(r, filters) for r in records])
@@ -198,6 +249,55 @@ def answer_query(question: str, k: int = config.TOP_K, filters: dict | None = No
         })
     return {"answer": answer, "sources": sources,
             "contexts": [h["text"] for h in hits]}
+
+
+# --------------------------------------------------------------------------- #
+# Document-level helpers (read-only over the resident records) — used by the
+# /api adapter and the one-pager generator.
+# --------------------------------------------------------------------------- #
+_by_doc: dict[str, list[dict]] | None = None
+
+
+def records_by_doc(path: str = config.EMBED_ARTIFACT) -> dict[str, list[dict]]:
+    """doc_id -> its chunk records (chunk order preserved). Cached; sans-embedding
+    view so callers never touch the vectors."""
+    global _by_doc
+    if _by_doc is None:
+        records, _ = _load(path)
+        grouped: dict[str, list[dict]] = {}
+        for r in records:
+            grouped.setdefault(r["doc_id"], []).append(_public(r))
+        _by_doc = grouped
+    return _by_doc
+
+
+def get_document(doc_id: str) -> list[dict]:
+    """All chunk records for one document (empty list if unknown)."""
+    return records_by_doc().get(doc_id, [])
+
+
+def document_meta(doc_id: str) -> dict:
+    """Doc-level metadata (from the first chunk) for building search results /
+    one-pager sources. Empty dict if the doc is unknown."""
+    recs = get_document(doc_id)
+    if not recs:
+        return {}
+    r0 = recs[0]
+    return {
+        "doc_id": doc_id,
+        "filename": r0.get("filename", doc_id),
+        "doc_type": r0.get("doc_type"),
+        "title": r0.get("title"),
+        "author": r0.get("author"),
+        "created": r0.get("created"),
+        "modified": r0.get("modified"),
+        "year": r0.get("year"),
+        "technologies": r0.get("technologies", []),
+        "industries": r0.get("industries", []),
+        "poc_name": r0.get("poc_name"),
+        "poc_email": r0.get("poc_email"),
+        "contact_emails": r0.get("contact_emails", []),
+    }
 
 
 def main() -> None:

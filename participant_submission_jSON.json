@@ -1,0 +1,160 @@
+{
+  "instructions": "Participants submit completed test-set answers. Fill every answer field.",
+  "participant": {
+    "team_name": "",
+    "submitter_name": "",
+    "submitter_email": ""
+  },
+  "answers": [
+    {
+      "question_number": 1,
+      "question": "For a sales rep preparing an NCL Snowflake ML modernization proof point, what capability was proposed in July, designed by December, and operational by February with 61 features?",
+      "answer": ""
+    },
+    {
+      "question_number": 2,
+      "question": "For a sales dashboard proof point on NCL's Snowflake migration, which two model groups made up the 5 models migrated by February 2026?",
+      "answer": ""
+    },
+    {
+      "question_number": 3,
+      "question": "In the NCL model inventory materials, the proposal says about 20 models but later steering decks say 14 total models. Which number should be used as the finalized inventory?",
+      "answer": ""
+    },
+    {
+      "question_number": 4,
+      "question": "If a sales rep needs one quantified NCL speed-to-market proof point, what was the reported CI/CD release-time improvement?",
+      "answer": ""
+    },
+    {
+      "question_number": 5,
+      "question": "For a prospect concerned about black-box legacy ML tools, which legacy platform did NCL's new Snowflake ML architecture reduce dependency on?",
+      "answer": ""
+    },
+    {
+      "question_number": 6,
+      "question": "If a sales rep asks for Marriott's original annual marketing budget and recommended channel allocation from the hospitality allocation optimization case study, what should the system answer?",
+      "answer": ""
+    },
+    {
+      "question_number": 7,
+      "question": "For a Marriott hospitality marketing measurement sales conversation, what data sources or platforms were used to develop the multi-touch attribution solution?",
+      "answer": ""
+    },
+    {
+      "question_number": 8,
+      "question": "For a retail sales prospect asking for a measurement case study, what was Walmart's synthetic-control use case and key impact?",
+      "answer": ""
+    },
+    {
+      "question_number": 9,
+      "question": "For a sales rep positioning the Agentic Data Platform, what are the three integrated layers of the proposed solution?",
+      "answer": ""
+    },
+    {
+      "question_number": 10,
+      "question": "For a sales rep explaining the Agentic Knowledge Platform, what does the platform unify into an AI-ready foundation?",
+      "answer": ""
+    },
+    {
+      "question_number": 11,
+      "question": "For sales enablement planning, what are the key deliverables for the AI-Native Data Foundation roadmap's Best Solution Deliverables workstream?",
+      "answer": ""
+    },
+    {
+      "question_number": 12,
+      "question": "For a hospitality sales prospect interested in AI-powered booking search, what were the main quantified impacts from the hotel intent-search case study?",
+      "answer": ""
+    },
+    {
+      "question_number": 13,
+      "question": "Which case study should a sales rep use for a hotel prospect that wants natural-language search, personalized property recommendations, and faster booking conversion?",
+      "answer": ""
+    },
+    {
+      "question_number": 14,
+      "question": "For an enterprise AI sales pitch, what 12-month outcome does the Agentic Data Platform claim for time to productionize AI use cases?",
+      "answer": ""
+    },
+    {
+      "question_number": 15,
+      "question": "For AI-Native Data Foundation sales qualification, which target client types are listed?",
+      "answer": ""
+    },
+    {
+      "question_number": 16,
+      "question": "For a sales rep positioning the AI-Native Data Foundation, what technology stack is listed in the offering?",
+      "answer": ""
+    },
+    {
+      "question_number": 17,
+      "question": "For a sales rep explaining the Vialto delivery story, what business problem was Blend addressing?",
+      "answer": ""
+    },
+    {
+      "question_number": 18,
+      "question": "For Vialto, what productivity coverage improvement did the move from Vanguard to Vlabs claim for UK Tax?",
+      "answer": ""
+    },
+    {
+      "question_number": 19,
+      "question": "In the Vialto evals delivery story, what four questions does every Plugin Enhancement Framework verdict answer?",
+      "answer": ""
+    },
+    {
+      "question_number": 20,
+      "question": "For a Franklin Templeton sales proof point, what information-overload problem did PM Copilot address?",
+      "answer": ""
+    },
+    {
+      "question_number": 21,
+      "question": "For Franklin Templeton PM Copilot, how many specialized AI agents transform raw data into investment signals?",
+      "answer": ""
+    },
+    {
+      "question_number": 22,
+      "question": "For a Franklin Templeton sales proof point, what did context engineering improve in PM Copilot?",
+      "answer": ""
+    },
+    {
+      "question_number": 23,
+      "question": "In the Mastercard financial services sales enablement case for global regions, what business need did the work address for a geographically diverse sales force?",
+      "answer": ""
+    },
+    {
+      "question_number": 24,
+      "question": "In the Mastercard financial services case on understanding best-in-class B2B brands, what framework did the work create for B2B marketing strategy?",
+      "answer": ""
+    },
+    {
+      "question_number": 25,
+      "question": "For a marketing analytics leader, what reporting problem did the J.Crew dashboard solve?",
+      "answer": ""
+    },
+    {
+      "question_number": 26,
+      "question": "In the KSM marketing media agency Datorama dashboard case, what did the dashboard help measure and attribute?",
+      "answer": ""
+    },
+    {
+      "question_number": 27,
+      "question": "In the CVS healthcare Sales Enablement Growth GPT case, what volume problem did the tool address for insurance sales reps?",
+      "answer": ""
+    },
+    {
+      "question_number": 28,
+      "question": "In the Upfield retail case about insourcing marketing mix modeling, what quantified outcomes were reported?",
+      "answer": ""
+    },
+    {
+      "question_number": 29,
+      "question": "In the travel and hospitality Guest Offer Optimization Engine case, what business impact did the solution deliver?",
+      "answer": ""
+    },
+    {
+      "question_number": 30,
+      "question": "In the financial services marketing campaign process reimagining case, what quantified improvements came from the work?",
+      "answer": ""
+    }
+  ]
+}

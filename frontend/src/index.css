@@ -1,0 +1,2 @@
+@tailwind base;@tailwind components;@tailwind utilities;
+body{@apply m-0 bg-slate-50 text-slate-800 font-sans}button{@apply transition-colors}.card{@apply rounded-xl border border-slate-200 bg-white shadow-sm}.btn{@apply rounded-lg px-4 py-2 font-semibold}.primary{@apply bg-indigo-600 text-white hover:bg-indigo-700}.badge{@apply inline-flex rounded-full bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700}

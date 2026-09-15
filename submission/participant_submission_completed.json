@@ -1,0 +1,160 @@
+{
+  "instructions": "Participants submit completed test-set answers. Fill every answer field.",
+  "participant": {
+    "team_name": "The Curators",
+    "submitter_name": "Prasad Chinthalapudi",
+    "submitter_email": "Prasad.Chinthalapudi@blend360.com"
+  },
+  "answers": [
+    {
+      "question_number": 1,
+      "question": "For a sales rep preparing an NCL Snowflake ML modernization proof point, what capability was proposed in July, designed by December, and operational by February with 61 features?",
+      "answer": "The proposed capability was a **scalable, Snowflake-native unified feature store**—a governed, reusable single source of truth for model features. The indexed documents do not confirm the December design, February operational date, or the count of **61 features**. [25.7.14_NCL_Proposal_V1 - Copy.pptx · slides 2-3]"
+    },
+    {
+      "question_number": 2,
+      "question": "For a sales dashboard proof point on NCL's Snowflake migration, which two model groups made up the 5 models migrated by February 2026?",
+      "answer": "The five migrated models were from two model groups:\n\n1. **Contact Models** (formerly Salesforce Einstein) for **OCI and RSSC**  \n2. **Email & Direct Mail Frequency Models** (formerly local R models) for **NCL, OCI, and RSSC** [2026.02.09 - SteeringCommittee - Copy.pptx · slide 7; 2026.02.09 - SteeringCommittee - Copy.pptx · slides 2-3]"
+    },
+    {
+      "question_number": 3,
+      "question": "In the NCL model inventory materials, the proposal says about 20 models but later steering decks say 14 total models. Which number should be used as the finalized inventory?",
+      "answer": "Use **14 total models** as the finalized inventory count. Multiple NCL Steering Committee materials consistently identify the model inventory as **14 total models**, with 6 designated as priority models and a 2/8/4 Tier 1/2/3 risk breakdown. [NCL-Steering-Committee-122025 - Copy.pptx · slide 26] [NCL-Steering-Committee (3) - Copy.pptx · slides 5-12]\n\nThe “about 20” figure should be treated as an earlier proposal-level estimate rather than the finalized, scoped inventory."
+    },
+    {
+      "question_number": 4,
+      "question": "If a sales rep needs one quantified NCL speed-to-market proof point, what was the reported CI/CD release-time improvement?",
+      "answer": "The reported CI/CD release-time improvement was a **98% reduction—from days to 30 minutes**. [2026 - Pre-Post Architecture - Copy.pptx · slide 5]"
+    },
+    {
+      "question_number": 5,
+      "question": "For a prospect concerned about black-box legacy ML tools, which legacy platform did NCL's new Snowflake ML architecture reduce dependency on?",
+      "answer": "NCL’s new Snowflake ML architecture reduced dependency on **Salesforce**, specifically its Salesforce Einstein environment. [20260408_BlendSLT_ProactivePlays_Featurettes.pptx · slides 22, 27]"
+    },
+    {
+      "question_number": 6,
+      "question": "If a sales rep asks for Marriott's original annual marketing budget and recommended channel allocation from the hospitality allocation optimization case study, what should the system answer?",
+      "answer": "I couldn't find Marriott’s original annual marketing budget or a channel-by-channel recommended allocation in the indexed case-study materials. The documents state that the $2.8B hospitality client sought to optimize paid-media budget allocation to maximize bookings, using multi-touch attribution, diminishing-return modeling, and optimization, but do not provide those specific figures. [_059_DSX_Marriot_Hospitality_Allocation_Optimization Multi-Touch Attribution.pptx · slide 1]"
+    },
+    {
+      "question_number": 7,
+      "question": "For a Marriott hospitality marketing measurement sales conversation, what data sources or platforms were used to develop the multi-touch attribution solution?",
+      "answer": "The Marriott multi-touch attribution solution combined specific data sources with data-engineering and reporting platforms:\n\n**Data sources:**\n- Click data\n- Impression data\n- Member data\n- Cost data\n- User-level data used to build individual customer journeys via a custom identity graph\n\n**Data platforms / tools:**\n- Data Engineering pipelines to prepare and stitch the data\n- Markov Chain–based multi-touch attribution modeling (optimal look-back-window analysis, media-contribution analysis, digital-journey insights, and scenario analysis)\n- Tableau as the reporting/visualization platform to make the Markov-Chain cohort-level journey mapping and MTA process accessible to users\n\n[_019_DSX_Marriot_Hospitality_Marketing Measurement.pptx · slides 1-2] [_099 - Marriot_Your Room is Ready- Hospitality Marketing Analytics_.pptx · slide 1]"
+    },
+    {
+      "question_number": 8,
+      "question": "For a retail sales prospect asking for a measurement case study, what was Walmart's synthetic-control use case and key impact?",
+      "answer": "Walmart used **Synthetic Control Matching** to measure the **incremental revenue attributable to app downloads**, including attribution by media source. Because a traditional control group or randomized A/B test was not feasible, the team constructed a statistically comparable synthetic control group using store/e-commerce transaction data and demographics, then estimated and forecasted short- and long-term revenue lift.  \n\n**Key impact:** the analysis covered approximately **15 million app downloads per year** and estimated a **38% incremental lift in revenue** from app downloads. It also identified high-value media sources to guide annual media-spend strategy. [_080_DSX_Walmart_Retail_Synthetic Control Matching.pptx · slides 1-3]"
+    },
+    {
+      "question_number": 9,
+      "question": "For a sales rep positioning the Agentic Data Platform, what are the three integrated layers of the proposed solution?",
+      "answer": "The proposed Agentic Data Platform combines three integrated layers:\n\n1. **AI-Ready Data Foundation** — A unified, governed architecture for real-time and batch ingestion, structured and unstructured data, shared semantic meaning, and AI-serving patterns such as vectors, embeddings, and feature stores.\n\n2. **Autonomous Data Operations** — AI agents that detect and remediate failures, manage schema drift, optimize queries, and automate routine data-engineering work with human oversight for higher-risk decisions.\n\n3. **Agentic Analytics** — Proactive, cross-source analytics that continuously surfaces insights, monitors business anomalies, provides auditable reasoning, and recommends or triggers actions. [Agentic_Data_Platform_Strategic_Positioning.docx]"
+    },
+    {
+      "question_number": 10,
+      "question": "For a sales rep explaining the Agentic Knowledge Platform, what does the platform unify into an AI-ready foundation?",
+      "answer": "The Agentic Knowledge Platform unifies **enterprise knowledge**—across documents, data platforms, collaboration tools, and internal systems—into an AI-ready foundation that powers intelligent assistants, analytics, and autonomous workflows. [OG_DPM_Enterprise Knowledge Platform.docx]"
+    },
+    {
+      "question_number": 11,
+      "question": "For sales enablement planning, what are the key deliverables for the AI-Native Data Foundation roadmap's Best Solution Deliverables workstream?",
+      "answer": "The **Best Solution Deliverables** workstream has four key deliverables:\n\n1. **Reusable solution-design templates** — standardized HLD, LLD, data-model, migration-runbook, and test-strategy templates derived from high-quality past project deliverables.  \n2. **Vertical accelerator starter kits** for **Retail, Banking, and Manufacturing**, including pre-built data models, sample KPI definitions, reference pipeline designs, and compliance checklists.  \n3. **A sample project plan and delivery timeline** for a typical $1M engagement, with phases, dependencies, resourcing, and milestones.  \n4. **A curated collection of top deliverables from prior engagements**—such as solution-design documents, data models, pipeline specifications, migration plans, and test strategies—to serve as source material for the templates. [AI_Native_Data_Foundation_Offering_Development_Roadmap.xlsx]\n\nThe roadmap summary identifies the completion outputs as **HLD/LLD templates, vertical starter kits, and a sample project plan**. [AI_Native_Data_Foundation_Offering_Development_Roadmap.xlsx]"
+    },
+    {
+      "question_number": 12,
+      "question": "For a hospitality sales prospect interested in AI-powered booking search, what were the main quantified impacts from the hotel intent-search case study?",
+      "answer": "The hotel intent-search case study reported these quantified impacts:\n\n- **10 ms mean query-classification/response time**, approximately **90% faster** than the prior hardware/system. [AI-Powered Intent Search Revolutionizes Hotel Bookings.pptx · slide 1]  \n- **50% reduction in compute costs**, estimated at **$85K–$150K in annual savings**. [Hotel Applicaton - Intent Search - Overview - Read-Only.pptx · slides 2-4]  \n- Built for **millions of monthly queries** across the hotel brand’s owned site and app platforms globally; the high-availability system was tested at **15 queries per second**. [Hotel Applicaton - Intent Search - Overview - Read-Only.pptx · slides 2-4]  \n- Estimated **first-year revenue impact of $25M+** from improved search conversion; other case-study versions state a **$25M–$50M** projected range through increased conversions and direct bookings. [Hotel Applicaton - Intent Search - Overview - Read-Only.pptx · slides 2-4] [20260408_BlendSLT_ProactivePlays_Featurettes.pptx · slides 90-93]"
+    },
+    {
+      "question_number": 13,
+      "question": "Which case study should a sales rep use for a hotel prospect that wants natural-language search, personalized property recommendations, and faster booking conversion?",
+      "answer": "Use the **Hyatt AI-Powered Intent Search** case study. It directly addresses natural-language, intent-based search; personalized property recommendations; and booking-conversion improvement.\n\nKey proof points:\n- Understands simple-to-complex natural-language guest queries across amenities, activities, price, themes, destinations, and events.\n- Uses classification, named-entity recognition, toxicity filtering, Google Gemini, and catalog enrichment to produce relevant recommendations.\n- Achieved 10 ms mean response time (90% improvement), 50% lower compute cost, and capacity tested at 15 queries per second.\n- Was projected to drive $25M–$50M in first-year revenue through improved conversion and direct bookings.\n- The related conversion model estimates a 50 bps uplift in booking rate per search session and a 25 bps uplift in direct booking rate, totaling $49.1M annual revenue impact. [Hotel Applicaton - Intent Search - Overview - Read-Only.pptx · slides 2-4] [20260408_BlendSLT_ProactivePlays_Featurettes.pptx · slides 90-93, 101]"
+    },
+    {
+      "question_number": 14,
+      "question": "For an enterprise AI sales pitch, what 12-month outcome does the Agentic Data Platform claim for time to productionize AI use cases?",
+      "answer": "The Agentic Data Platform claims it can reduce time to productionize an AI use case from **6–12 months to 6–12 weeks**—described as **10× faster**. [Agentic_Data_Platform_Strategic_Positioning.docx]"
+    },
+    {
+      "question_number": 15,
+      "question": "For AI-Native Data Foundation sales qualification, which target client types are listed?",
+      "answer": "The listed target client types for the AI-Native Data Foundation offering are:\n\n1. **Global Retail**\n2. **Banking & Financial Services**\n3. **Manufacturing**\n4. **Tech/SaaS**\n5. **Large Enterprises** [AI_Native_Data_Foundation_Offering.docx]"
+    },
+    {
+      "question_number": 16,
+      "question": "For a sales rep positioning the AI-Native Data Foundation, what technology stack is listed in the offering?",
+      "answer": "The offering lists the following technology stack:\n\n- **Snowflake:** Cortex (AI/ML), Horizon (semantic layer and governance), FinOps, and Query History API  \n- **AWS:** S3, Bedrock, Glue Streaming, Kinesis, Amazon Q, SageMaker, and CloudWatch  \n- **Databricks:** Unity Catalog, for multi-platform deployments  \n- **dbt Cloud:** Transformation orchestration and automated testing [AI_Native_Data_Foundation_Offering.docx]"
+    },
+    {
+      "question_number": 17,
+      "question": "For a sales rep explaining the Vialto delivery story, what business problem was Blend addressing?",
+      "answer": "Blend was addressing Vialto’s high cost-to-serve caused by manual, fragmented, document-heavy casework across global mobility services. Expert caseworker hours were being consumed by processing tax and immigration cases, managing documents, coordinating work, and billing. The proposed AI-enabled delivery model was intended to automate and standardize these workflows, augment caseworkers, and provide shared operational visibility across service lines. [AI and DS Joint Function Meeting - 07-17-2026-Vialto.pptx · slide 20]"
+    },
+    {
+      "question_number": 18,
+      "question": "For Vialto, what productivity coverage improvement did the move from Vanguard to Vlabs claim for UK Tax?",
+      "answer": "For UK Tax, the move from Vanguard to Vlabs claimed a **10× boost in coverage**, increasing from **20% to 100% in weeks**. [AI and DS Joint Function Meeting - 07-17-2026-Vialto.pptx · slides 21-23]"
+    },
+    {
+      "question_number": 19,
+      "question": "In the Vialto evals delivery story, what four questions does every Plugin Enhancement Framework verdict answer?",
+      "answer": "Every Plugin Enhancement Framework verdict answers:\n\n1. **Efficiency** — Is it faster and/or cheaper?  \n2. **Integrity** — Is everything intact?  \n3. **Correctness** — Are the answers it provides right?  \n4. **Quality** — Does it match the specific criteria set by owners? [AI and DS Joint Function Meeting - 07-17-2026-Vialto.pptx · slide 25]"
+    },
+    {
+      "question_number": 20,
+      "question": "For a Franklin Templeton sales proof point, what information-overload problem did PM Copilot address?",
+      "answer": "PM Copilot addressed the challenge of portfolio managers having to manually synthesize **600+ daily RavenPack news articles across 200+ portfolio companies**. About **85% of the feed was noise**—such as routine press releases, CSR announcements, and duplicate coverage—causing material signals to be buried, decisions to be delayed, and recommendation quality to vary with analyst capacity and time pressure. Manual synthesis took an estimated **5–8 minutes per company**, and news alone lacked expert validation for a complete investment narrative. [PM_Copilot_Deck_FT.pptx · slides 2, 5]"
+    },
+    {
+      "question_number": 21,
+      "question": "For Franklin Templeton PM Copilot, how many specialized AI agents transform raw data into investment signals?",
+      "answer": "Six specialized AI agents transform raw data into actionable investment signals. [PM_Copilot_Deck_FT.pptx · slides 3-4]"
+    },
+    {
+      "question_number": 22,
+      "question": "For a Franklin Templeton sales proof point, what did context engineering improve in PM Copilot?",
+      "answer": "In PM Copilot, progressive context engineering filtered and structured information before final synthesis. It reduced context from roughly **50K tokens to 5K tokens** (described elsewhere as 4.4K tokens at final synthesis), which improved recommendation quality by **15–20 points**, reduced processing time from **12–14 minutes to 4–6 minutes**, lowered cost per recommendation from **$0.50–$0.80 to $0.05–$0.10**, and increased PM satisfaction from **70–75% to 85–90%**. [PM_Copilot_Deck_FT.pptx · slides 3, 7, 12]"
+    },
+    {
+      "question_number": 23,
+      "question": "In the Mastercard financial services sales enablement case for global regions, what business need did the work address for a geographically diverse sales force?",
+      "answer": "It addressed the need for a geographically diverse sales force to deliver quick, insightful product pitches that demonstrated command of the offerings, despite having numerous products and overlapping solutions. [MasterCard Case Study-project 2.pptx · slide 1]"
+    },
+    {
+      "question_number": 24,
+      "question": "In the Mastercard financial services case on understanding best-in-class B2B brands, what framework did the work create for B2B marketing strategy?",
+      "answer": "The work created a **comparative, multi-dimensional benchmarking framework** that scored best-in-class companies against key performance dimensions. It enabled the client to compare firms, identify the composite dimensions and activities behind exceptional performance, and use those insights as the foundation for B2B marketing and executional excellence. [MasterCard Case Study-project 3.pptx · slide 1]"
+    },
+    {
+      "question_number": 25,
+      "question": "For a marketing analytics leader, what reporting problem did the J.Crew dashboard solve?",
+      "answer": "The J.Crew dashboard addressed fragmented, manual reporting across brands. Marketing and Analytics teams had to pull from multiple data sources and create time-consuming, point-in-time PowerPoint or Excel reports. The solution standardized KPIs and provided unified, self-service Power BI reporting across brands, including YoY/MoM/QoQ and YTD/MTD/QTD comparisons and custom-report capability. [_055_DSX_JCrew_Retail_Customer & Marketing Insights Dashboard .pptx · slides 1-2]"
+    },
+    {
+      "question_number": 26,
+      "question": "In the KSM marketing media agency Datorama dashboard case, what did the dashboard help measure and attribute?",
+      "answer": "The dashboard enabled measurement of the **market-level impact of advertising efforts** and attribution of that impact to **prospects and leads registered through offline sources**. [_071_DSX_KSM_MarketingMediaAgency_Dataroma Dashboard Build.pptx · slide 1]"
+    },
+    {
+      "question_number": 27,
+      "question": "In the CVS healthcare Sales Enablement Growth GPT case, what volume problem did the tool address for insurance sales reps?",
+      "answer": "The tool addressed a volume of **over 750,000 sales calls annually**, during which agents had to manually sift through documentation to help members find the right insurance plan. [ _145_CVS_Healthcare & Life Sciences_ Business Strategy & AI Consulting_Sales Enablement Growth GPT.pptx · slide 1 ]"
+    },
+    {
+      "question_number": 28,
+      "question": "In the Upfield retail case about insourcing marketing mix modeling, what quantified outcomes were reported?",
+      "answer": "The Upfield insourcing MMM case reported:\n\n- Deployment across **7 markets**.  \n- **25% increase in media efficiency**.  \n- **75% long-term cost savings**.  \n- Feedback cycles improved so end users could monitor decision impacts **daily**. [<_155_Upfield_Retail_Data Engineering_Enterprise Operations_Insource Marketing Mix Modeling.pptx · slides 1-2>]  \n\nA related version of the case also states that the solution automated up to **0.5 FTE per year per country** and reduced feedback cycles from **once every two years to quarterly**. [Case Studies for Blend Website WIP (1).pptx · slide 12]"
+    },
+    {
+      "question_number": 29,
+      "question": "In the travel and hospitality Guest Offer Optimization Engine case, what business impact did the solution deliver?",
+      "answer": "The Guest Offer Optimization Engine delivered:\n\n- **$24M in annualized incremental revenue** from the initial round of personalized promotions.  \n- **$1.2M in annualized promotional cost savings** through optimized promotion deployment.  \n- An **85% increase in promotion ROI**, driven by higher guest revenue from personalized offers.  \n- Faster operations: personalized campaign audiences could be prepared in **less than one day**, and business users could run multiple budget and what-if scenario iterations.  \n- The results were **independently verified using the client’s third-party service**. [_173_Travel & Hospitality_Data Science & Insights_Customer Experience_Guest Offer Optimization Engine.pptx · slide 1] [Blend Hospitality Case Study - Loyalty Optimization.pptx · slides 7-8]"
+    },
+    {
+      "question_number": 30,
+      "question": "In the financial services marketing campaign process reimagining case, what quantified improvements came from the work?",
+      "answer": "The campaign-process reimagining work delivered these quantified improvements:\n\n- **50% reduction** in campaign execution time within 12 months  \n- **40% increase** in campaign capacity/throughput  \n- Process-management maturity improved from **2.1 to 3.1** within 9 months  \n- **65% reduction** in compliance-related meetings [\\_176_Financial Services_Business Strategy & AI Consulting_Customer Experience_Marketing Campaign Process Reimagining.pptx · slide 1]\n\nThe companion case-study material describes these as expected outcomes of the implementation then in flight. [MKT Campaign Execution – Process Reimagining Case Study.pptx · slides 2-3]"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "pilot_name": "pih_test_data_16",
+  "description": "All 16 successfully extracted files from backend/app/data/test_data.",
+  "source_file": "test_data_index.json",
+  "documents": [
+    {"doc_id": 1, "file_type": ".pptx", "reason": "Included from approved test_data replacement set"},
+    {"doc_id": 2, "file_type": ".pptx", "reason": "Included from approved test_data replacement set"},
+    {"doc_id": 3, "file_type": ".pptx", "reason": "Included from approved test_data replacement set"},
+    {"doc_id": 4, "file_type": ".pptx", "reason": "Included from approved test_data replacement set"},
+    {"doc_id": 5, "file_type": ".pptx", "reason": "Included from approved test_data replacement set"},
+    {"doc_id": 6, "file_type": ".pptx", "reason": "Included from approved test_data replacement set"},
+    {"doc_id": 7, "file_type": ".docx", "reason": "Included from approved test_data replacement set"},
+    {"doc_id": 8, "file_type": ".docx", "reason": "Included from approved test_data replacement set"},
+    {"doc_id": 9, "file_type": ".xlsx", "reason": "Included from approved test_data replacement set"},
+    {"doc_id": 10, "file_type": ".pptx", "reason": "Included from approved test_data replacement set"},
+    {"doc_id": 11, "file_type": ".pptx", "reason": "Included from approved test_data replacement set"},
+    {"doc_id": 12, "file_type": ".docx", "reason": "Included from approved test_data replacement set"},
+    {"doc_id": 13, "file_type": ".xlsx", "reason": "Included from approved test_data replacement set"},
+    {"doc_id": 14, "file_type": ".pptx", "reason": "Included from approved test_data replacement set"},
+    {"doc_id": 15, "file_type": ".pptx", "reason": "Included from approved test_data replacement set"},
+    {"doc_id": 16, "file_type": ".pptx", "reason": "Included from approved test_data replacement set"}
+  ]
+}

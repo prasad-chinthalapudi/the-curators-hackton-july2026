@@ -1,0 +1,21 @@
+{
+  "pilot_name": "pih_initial_14",
+  "description": "Initial PIH retrieval pilot covering every extracted file type.",
+  "source_file": "data_extracted.txt",
+  "documents": [
+    {"doc_id": 1, "file_type": ".pptx", "reason": "Multi-slide manufacturing demand forecasting case study"},
+    {"doc_id": 4, "file_type": ".pptx", "reason": "Broad offering deck with multiple industries and technologies"},
+    {"doc_id": 527, "file_type": ".pptx", "reason": "Short PowerPoint case study"},
+    {"doc_id": 845, "file_type": ".pptx", "reason": "Healthcare GPT project case study"},
+    {"doc_id": 190, "file_type": ".docx", "reason": "Medium DOCX case study"},
+    {"doc_id": 484, "file_type": ".docx", "reason": "Large DOCX case study"},
+    {"doc_id": 504, "file_type": ".docx", "reason": "Long DOCX case study"},
+    {"doc_id": 571, "file_type": ".docx", "reason": "Short DOCX case study"},
+    {"doc_id": 228, "file_type": ".pdf", "reason": "Large PDF case study"},
+    {"doc_id": 547, "file_type": ".pdf", "reason": "Medium PDF case study"},
+    {"doc_id": 636, "file_type": ".pdf", "reason": "Medium PDF case study"},
+    {"doc_id": 671, "file_type": ".pdf", "reason": "Small PDF boundary test"},
+    {"doc_id": 653, "file_type": ".xlsx", "reason": "Small spreadsheet extraction"},
+    {"doc_id": 656, "file_type": ".xlsx", "reason": "Large roadmap spreadsheet extraction"}
+  ]
+}
